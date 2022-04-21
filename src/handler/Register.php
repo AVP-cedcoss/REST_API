@@ -93,6 +93,11 @@ class Register extends Injectable
         }
     }
 
+    /**
+     * Display Get Token Button
+     *
+     * @return void
+     */
     public function getToken()
     {
         $html='
@@ -103,6 +108,11 @@ class Register extends Injectable
         return $html;
     }
 
+    /**
+     * Generates Token for 5 Minutes
+     *
+     * @return void
+     */
     public function generateToken()
     {
         $key = "anugrah_vishwas_paul";
@@ -118,9 +128,18 @@ class Register extends Injectable
         );
 
         $jwt = JWT::encode($payload, $key, 'HS256');
-        return $jwt;
+        $jwt = array(
+            "access_token" => $jwt,
+            "expires in" => "5 minutes"
+        );
+        return json_encode($jwt) ;
     }
 
+    /**
+     * if Token Expired
+     *
+     * @return void
+     */
     public function expired()
     {
         $html = '

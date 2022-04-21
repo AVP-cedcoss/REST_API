@@ -146,11 +146,7 @@ $app->get(
     ]
 );
 
-$app->notFound( 
-    function () use($app) {
-        echo "Invalid URL Kindly Check the ENDPOINT! or ACCESS TOKEN not Provided";
-    }
-);
+
 
 /**------------------------------------------------------GET REQUEST END------------------------------------------------- */
 

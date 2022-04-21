@@ -15,6 +15,11 @@ class Product extends Injectable
         $this->mongo = (new \MongoDB\Client('mongodb://mongo', array('username' => 'root', "password" => 'password123')))->mongodb;
     }
 
+    /**
+     * Resolves token and checks whether token is Good / Bad
+     *
+     * @return void
+     */
     public function resolveToken()
     {
         $tokenReceived = $this->request->getQuery('access_token');
@@ -55,17 +60,17 @@ class Product extends Injectable
 
             foreach ($result as $value) {
                 $count = 0;
-                foreach ($value->labelValue as $v) {
+                foreach ($value->variant as $v) {
                     $count++;
                 }
                 array_push(
                     $data,
                     array(
                         'product_id' => strval($value->_id),
-                        'product_name' => $value->name,
-                        'product_category' => $value->categoryName,
-                        'product_price' => $value->price,
-                        'product_stock' => $value->stock,
+                        'product_name' => $value->product_name,
+                        'product_category' => $value->product_category,
+                        'product_price' => $value->product_price,
+                        'product_stock' => $value->product_stock,
                         'product_variation' => $count,
                     )
                 );
@@ -93,17 +98,17 @@ class Product extends Injectable
         $data = [];
         foreach ($result as $value) {
             $count = 0;
-            foreach ($value->labelValue as $v) {
+            foreach ($value->variant as $v) {
                 $count++;
             }
             array_push(
                 $data,
                 array(
                     'product_id' => strval($value->_id),
-                    'product_name' => $value->name,
-                    'product_category' => $value->categoryName,
-                    'product_price' => $value->price,
-                    'product_stock' => $value->stock,
+                    'product_name' => $value->product_name,
+                    'product_category' => $value->product_category,
+                    'product_price' => $value->product_price,
+                    'product_stock' => $value->product_stock,
                     'product_variation' => $count,
                 )
             );
@@ -111,13 +116,19 @@ class Product extends Injectable
         return json_encode($data);
     }
 
+    /**
+     * Basic Documentation Help for USER
+     *
+     * @return void
+     */
     public function help()
     {
         $html = '
         <pre>
+        <a href="https://github.com/AVP-cedcoss/REST_API">GITHUB</a>
         <strong>API Contains 1000 Products</strong>
 
-            -> register/register
+            -> register
                 # Register Form
 
             -> register/login
