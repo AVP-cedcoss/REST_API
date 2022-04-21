@@ -143,6 +143,12 @@ class Product extends Injectable
 
             -> products/search/<strong>{keyword}</strong>?access_token={generated Token}
                 # returns similar name Products
+
+            -> order/add {POST}
+                # "customer_name" = {name}
+                # "product_id" = {id}
+                # "product_quantity" = {quantity}
+
         </pre>
         ';
 
