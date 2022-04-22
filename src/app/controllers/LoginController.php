@@ -47,10 +47,12 @@ class LoginController extends Controller
             $this->session->set('userDetail', (object)$user);
             $this->objects->logger->info("User Logged in: '" . $user['user_email'] . "'");
 
-            if ($result->user_role == 'Admin') {
-                $this->response->redirect('Admin');
+            if ($result->user_role === 'Admin') {
+                echo $result->user_role;
+                $this->response->redirect('admin');
+            } else {
+                $this->response->redirect('token');
             }
-            $this->response->redirect('token');
         } else {
             $this->objects->logger->critical("Failed User Log in: '" . $user['user_email'] . "'");
             $this->response->redirect('/login');

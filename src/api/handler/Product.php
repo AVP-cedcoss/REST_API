@@ -79,6 +79,45 @@ class Product extends Injectable
     }
 
     /**
+     * Get Product by ID
+     *
+     * @return void
+     */
+    public function search()
+    {
+        $this-> resolveToken();
+        if ($this->request->isPost('product_id') && $this->inputCheck('search')) {
+            try {
+                $result = $this->mongo->api->findOne(['_id' => new \MongoDB\BSON\ObjectId($this->request->getPost('product_id'))]);
+
+                $data=array();
+                $variation=array();
+                foreach ($result->variant as $v) {
+                    $temp=[];
+                    foreach ($v as $key => $value) {
+                        $temp[$key] = $value;
+                    }
+                    array_push($variation, $temp);
+                }
+
+                
+                $data = array(
+                    'product_id' => strval($result->_id),
+                    'product_name' => $result->product_name,
+                    'product_category' => $result->product_category,
+                    'product_price' => $result->product_price,
+                    'product_stock' => $result->product_stock,
+                    'product_variation' => $variation,
+                );
+
+                return json_encode($data);
+            } catch (\Exception $e) {
+
+            }
+        }
+    }
+
+    /**
      * Returns all Products
      *
      * @return void
@@ -115,6 +154,19 @@ class Product extends Injectable
         return json_encode($data);
     }
 
+    private function inputCheck($check)
+    {
+        /**
+         * Check search order Inputs
+         */
+        if ($check == 'search') {
+            if (! $this->request->getPost('product_id')) {
+                return false;
+            }
+            return true;
+        }
+    }
+
     /**
      * Basic Documentation Help for USER
      *
@@ -127,22 +179,31 @@ class Product extends Injectable
         <a href="https://github.com/AVP-cedcoss/REST_API">GITHUB</a>
         <strong>API Contains 1000 Products</strong>
 
-            -> products/get?access_token={generated Token}
+            -> api/products/get?access_token={generated Token}
+                %{GET}%
                 # Provides only 20 Initial Products 
 
-            -> products/get/<strong>{limit}</strong>/<strong>{page}</strong>?access_token={generated Token}
+            -> api/products/get/<strong>{limit}</strong>/<strong>{page}</strong>?access_token={generated Token}
+                %{GET}%
                 # Limit no of products
                 # Page No
 
-            -> products/search/<strong>{keyword}</strong>?access_token={generated Token}
+            -> api/products/search/<strong>{keyword}</strong>?access_token={generated Token}
+                %{GET}%
                 # returns similar name Products
 
-            -> order/create {POST}?access_token={generated Token}
+            -> api/get/product?access_token={generated Token}
+                %{POST}%
+                # "product_id"
+
+            -> api/order/create?access_token={generated Token}
+                %{POST}%
                 # "customer_name" = {name}
                 # "product_id" = {id}
                 # "product_quantity" = {quantity}
 
-            -> order/update {POST}?access_token={generated Token}
+            -> api/order/update?access_token={generated Token}
+                %{POST}%
                 # "order_id" = {order id}
                 # "order_status" = {order status}
 

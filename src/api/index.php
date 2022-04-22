@@ -159,6 +159,14 @@ $app->get(
     ]
 );
 
+$app->post(
+    '/api/get/product',
+    [
+        $product,
+        'search'
+    ]
+);
+
 $app->get(
     '/api/products/search/{keyword}',
     [
