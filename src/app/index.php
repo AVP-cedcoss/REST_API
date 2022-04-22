@@ -18,7 +18,6 @@ use Phalcon\Session\Adapter\Stream;
 use Phalcon\Http\Response\Cookies;
 use Phalcon\Logger;
 use Phalcon\Logger\Adapter\Stream as logStream;
-use App\Helper;
 
 // $config = new Config([]);
 
@@ -65,7 +64,7 @@ $container->set(
     'objects',
     function () {
         $detail = array(
-            'escaper' => new Helper\myescaper(),
+            'escaper' => new App\Helper\myescaper(),
             'logger' => new Logger(
                     'messages',
                     [

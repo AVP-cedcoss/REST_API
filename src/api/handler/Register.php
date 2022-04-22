@@ -1,6 +1,7 @@
 <?php
 
 namespace Handler;
+
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
@@ -50,7 +51,7 @@ class Register extends Injectable
     //     $this->mongo->user->insertOne($user);
     //     header('location: /register/login');
     // }
-    
+
     /**
      * Login Form Display
      *
@@ -116,11 +117,11 @@ class Register extends Injectable
     public function generateToken()
     {
         $key = "anugrah_vishwas_paul";
-        
+
         $now        = new \DateTime();
         $issued     = $now->getTimestamp();
         $notBefore  = $now->modify('+5 minute')->getTimestamp();
-        
+
         $payload = array(
             "iat" => $issued,
             "exp" => $notBefore,
@@ -132,7 +133,7 @@ class Register extends Injectable
             "access_token" => $jwt,
             "expires in" => "5 minutes"
         );
-        return json_encode($jwt) ;
+        return json_encode($jwt);
     }
 
     /**
@@ -148,5 +149,29 @@ class Register extends Injectable
         </form>
         ';
         return $html;
+    }
+
+    /**
+     * Resolves token and checks whether token is Good / Bad
+     *
+     * @return void
+     */
+    public function resolveToken()
+    {
+        $tokenReceived = $this->request->getQuery('access_token');
+        $key = "anugrah_vishwas_paul";
+        $now           = new \DateTime();
+        $expires       = $now->modify('+30 minute')->getTimestamp();
+
+        try {
+            $decoded = JWT::decode($tokenReceived, new Key($key, 'HS256'));
+        } catch (\Exception $e) {
+            die(json_encode(
+                array(
+                    "Message" => "Token Expired. Kindly Generate a New One."
+                )
+            ));
+        }
+        return $decoded->sub;
     }
 }

@@ -21,7 +21,7 @@ class TokenController extends Controller
         
         $now        = new \DateTime();
         $issued     = $now->getTimestamp();
-        $notBefore  = $now->modify('+5 minute')->getTimestamp();
+        $notBefore  = $now->modify('+30 minute')->getTimestamp();
         
         $payload = array(
             "iat" => $issued,
@@ -32,7 +32,7 @@ class TokenController extends Controller
         $jwt = JWT::encode($payload, $key, 'HS256');
         $jwt = array(
             "access_token" => $jwt,
-            "expires in" => "5 minutes"
+            "expires in" => "30 minutes"
         );
         return json_encode($jwt) ;
     }

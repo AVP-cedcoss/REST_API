@@ -1,6 +1,7 @@
 <?php
 
 namespace Handler;
+
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
@@ -21,13 +22,13 @@ class Order extends Injectable
          * Check Create order Inputs
          */
         if ($check == 'createOrder') {
-            if (! $this->request->getPost('customer_name')) {
+            if (!$this->request->getPost('customer_name')) {
                 return false;
             }
-            if (! $this->request->getPost('product_id')) {
+            if (!$this->request->getPost('product_id')) {
                 return false;
             }
-            if (! $this->request->getPost('product_quantity')) {
+            if (!$this->request->getPost('product_quantity')) {
                 return false;
             }
             return true;
@@ -37,10 +38,10 @@ class Order extends Injectable
          * Check Update Order Status Input
          */
         if ($check == 'updateStatusOrder') {
-            if (! $this->request->getPut('order_id')) {
+            if (!$this->request->getPut('order_id')) {
                 return false;
             }
-            if (! $this->request->getPut('order_status')) {
+            if (!$this->request->getPut('order_status')) {
                 return false;
             }
             return true;
@@ -55,21 +56,54 @@ class Order extends Injectable
     public function create()
     {
         if ($this->request->isPost() && $this->inputCheck('createOrder')) {
-            $orderStatus='Processing';
+
+            /**
+             * Setting Default Order Status
+             */
+            $orderStatus = 'Processing';
+
             try {
+                /**
+                 * Checking Whether the Product Exists in the Database or Not
+                 */
+                try {
+                    $this->mongo->api->find(
+                        [
+                            '_id' => new \MongoDB\BSON\ObjectId(
+                                $this->objects->escaper->sanitize(
+                                    $this->request->getPost('product_id')
+                                )
+                            )
+                        ]
+                    );
+                } catch (\Exception $e) {
+                    return json_encode(
+                        array(
+                            'Message' => 'Product ID Not Found. Kindly check whether all the fields are Correct'
+                        )
+                    );
+                }
+
+                /**
+                 * Product Found in DB hence Creating Order
+                 */
                 $order = array(
-                    'customer_name' => $this->request->getPost('customer_name'),
-                    'product_id' => $this->request->getPost('product_id'),
-                    'product_quantity' => $this->request->getPost('product_quantity'),
+                    'customer_name' => $this->objects->escaper->sanitize($this->request->getPost('customer_name')),
+                    'product_id' => $this->objects->escaper->sanitize($this->request->getPost('product_id')),
+                    'product_quantity' => $this->objects->escaper->sanitize($this->request->getPost('product_quantity')),
                     'order_status' => $orderStatus,
                     'order_date' => date('Y-m-d'),
                     'modified_by' => (new Product())->resolveToken(),
                 );
                 if (null !== $this->request->getPost('variant')) {
-                    $order['variant'] = $this->request->getPost('variant');
+                    $order['variant'] = $this->objects->escaper->sanitize($this->request->getPost('variant'));
                 }
 
                 $result = $this->mongo->order->insertOne($order);
+
+                /**
+                 * Order Successful Returning Success Message
+                 */
                 return json_encode(
                     array(
                         'Order_ID' => $result->getInsertedId(),
@@ -78,6 +112,9 @@ class Order extends Injectable
                     )
                 );
             } catch (\Exception $e) {
+                /**
+                 * Order Failed Returning Error Message
+                 */
                 return json_encode(
                     array(
                         'Message' => 'Some Error Occured. Kindly check whether all the fields are Correct'
@@ -85,6 +122,9 @@ class Order extends Injectable
                 );
             }
         } else {
+            /**
+             * Empty Fields Provided in the POST Request
+             */
             return json_encode(
                 array(
                     'Message' => 'Fields Cannot Be Empty'
@@ -102,26 +142,64 @@ class Order extends Injectable
     {
         if ($this->request->isPut() && $this->inputCheck('updateStatusOrder')) {
             try {
+                /**
+                 * Checking Whether the Product Exists in the Database or Not
+                 */
+                try {
+                    $this->mongo->order->find(
+                        [
+                            '_id' => new \MongoDB\BSON\ObjectId(
+                                $this->objects->escaper->sanitize(
+                                    $this->request->getPut('order_id')
+                                )
+                            )
+                        ]
+                    );
+                } catch (\Exception $e) {
+                    return json_encode(
+                        array(
+                            'Message' => 'Order ID Not Found. Kindly check whether all the fields are Correct'
+                        )
+                    );
+                }
+
+                /**
+                 * Order ID Found Updating Order Status
+                 */
                 $this->mongo->order->updateOne(
                     [
-                        '_id' => new \MongoDB\BSON\ObjectId($this->request->getPut('order_id'))
+                        '_id' => new \MongoDB\BSON\ObjectId(
+                            $this->objects->escaper->sanitize(
+                                $this->request->getPut('order_id')
+                            )
+                        )
                     ],
                     [
                         '$set' => [
-                            'order_status' => $this->request->getPut('order_status'),
-                            'modified_by' => (new Product())->resolveToken(),
+                            'order_status' => $this->objects->escaper->sanitize($this->request->getPut('order_status')),
+                            'modified_by' => $this->user_id,
                         ]
                     ]
                 );
-    
+
+                /**
+                 * Order Update Successful
+                 */
                 return json_encode(
                     array(
-                        'Order_ID' => $this->request->getPut('order_id'),
-                        'Order_Status' => $this->request->getPut('order_status'),
+                        'Order_ID' => $this->objects->escaper->sanitize(
+                            $this->request->getPut('order_id')
+                        ),
+                        'Order_Status' => $this->objects->escaper->sanitize(
+                            $this->request->getPut('order_status')
+                        ),
                         'Message' => 'Order Successfully Updated'
                     )
                 );
             } catch (\Exception $e) {
+                /**
+                 * Order Update Unsuccessful
+                 */
                 return json_encode(
                     array(
                         'Message' => 'Some Error Occured. Kindly check whether all the fields are Correct'
@@ -137,4 +215,3 @@ class Order extends Injectable
         }
     }
 }
-

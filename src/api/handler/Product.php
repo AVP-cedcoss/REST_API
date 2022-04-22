@@ -16,35 +16,12 @@ class Product extends Injectable
     }
 
     /**
-     * Resolves token and checks whether token is Good / Bad
-     *
-     * @return void
-     */
-    public function resolveToken()
-    {
-        $tokenReceived = $this->request->getQuery('access_token');
-        $key = "anugrah_vishwas_paul";
-        $now           = new \DateTime();
-        $expires       = $now->modify('+30 minute')->getTimestamp();
-
-        try {
-            $decoded = JWT::decode($tokenReceived, new Key($key, 'HS256'));
-        } catch (\Exception $e)
-        {
-            header('location: /register/expired');
-        }
-        return $decoded->sub;
-    }
-
-    /**
      * Returns all Products with matching Keyword
      *
      * @return void
      */
     public function findByKeyword($keyword)
     {
-        $this->resolveToken();
-
         $words = explode(" ", urldecode($keyword));
         $data = array();
         foreach ($words as $value) {
@@ -85,7 +62,6 @@ class Product extends Injectable
      */
     public function search()
     {
-        $this-> resolveToken();
         if ($this->request->isPost('product_id') && $this->inputCheck('search')) {
             try {
                 $result = $this->mongo->api->findOne(['_id' => new \MongoDB\BSON\ObjectId($this->request->getPost('product_id'))]);
@@ -122,10 +98,8 @@ class Product extends Injectable
      *
      * @return void
      */
-    public function all($limit = 20, $page = 0, $token = "")
+    public function all($limit = 20, $page = 0)
     {
-        $this->resolveToken();
-
         $result = $this->mongo->api->find(
             [],
             [
@@ -177,6 +151,7 @@ class Product extends Injectable
         $html = '
         <pre>
         <a href="https://github.com/AVP-cedcoss/REST_API">GITHUB</a>
+        <a href="https://documenter.getpostman.com/view/20403341/UyrAEbtb">POSTMAN</a>
         <strong>API Contains 1000 Products</strong>
 
             -> api/products/get?access_token={generated Token}
@@ -203,7 +178,7 @@ class Product extends Injectable
                 # "product_quantity" = {quantity}
 
             -> api/order/update?access_token={generated Token}
-                %{POST}%
+                %{PUT}%
                 # "order_id" = {order id}
                 # "order_status" = {order status}
 

@@ -6,30 +6,39 @@ use Phalcon\Loader;
 use Phalcon\Mvc\Micro;
 use Phalcon\Di\FactoryDefault;
 use Phalcon\Mvc\Router;
+use Api\Helper\myescaper;
+use Handler\Register;
 
 // Define some absolute path constants to aid in locating resources
 define('BASE_PATH', __DIR__);
 define('APP_PATH', BASE_PATH . '/app');
 define('URL_ROOT', 'http://localhost:8080');
 
-require_once(BASE_PATH."/vendor/autoload.php");
+require_once(BASE_PATH . "/vendor/autoload.php");
 
 $container = new FactoryDefault();
+$app = new Micro($container);
 
 $loader = new Loader();
 
 $loader->registerNamespaces(
     [
         'Handler' => BASE_PATH . '/handler',
+        'Helper' => BASE_PATH . '/helper',
     ]
 );
 
 $loader->register();
 
+$register = new Handler\Register();
+$product = new Handler\Product();
+$order = new Handler\Order();
+
+
 $container->set(
     'mongo',
     function () {
-        $mongo =  new \MongoDB\Client('mongodb://mongo', array('username'=>'root',"password"=>'password123'));
+        $mongo =  new \MongoDB\Client('mongodb://mongo', array('username' => 'root', "password" => 'password123'));
         return $mongo->mongodb;
     }
 );
@@ -49,12 +58,37 @@ $container->set(
     }
 );
 
-$product = new Handler\Product();
-$register = new Handler\Register();
-$order = new Handler\Order();
+$container->set(
+    'user_id',
+    function () use ($app, $register) {
+        /**
+         * Resolving Token and Checking Whether User Exists
+         */
+        try {
+            return strval($app->mongo->user->findOne(
+                [
+                    '_id' => new MongoDB\BSON\ObjectId(($register)->resolveToken())
+                ]
+            )->_id);
+        } catch (\Exception $e) {
+            return json_encode(
+                array(
+                    'Message' => 'User Not Registered. Kindly Register or Generate A NEW TOKEN'
+                )
+            );
+        }
+    }
+);
 
-
-$app = new Micro($container);
+$container->set(
+    'objects',
+    function () {
+        $obj = array(
+            'escaper' => new myescaper()
+        );
+        return (object)$obj;
+    }
+);
 
 /**--------------------------------------------------GET REQUEST START----------------------------------------------- */
 
@@ -129,15 +163,14 @@ $app->get(
 
 $app->before(
     function () use ($app) {
+        // $app->user_id;
         if (str_contains($_SERVER['REQUEST_URI'], 'products')) {
             if (null === ($app->request->getQuery("access_token"))) {
-                die (
-                    json_encode(
-                        array(
-                            'message' => "Kindly Provide Access Token"
-                        )
+                die(json_encode(
+                    array(
+                        'message' => "Kindly Provide Access Token"
                     )
-                );
+                ));
             }
         }
     }
@@ -179,15 +212,14 @@ $app->get(
 /* -----------------------Order Start------------------*/
 $app->before(
     function () use ($app) {
+        // $this->user_id;
         if (str_contains($_SERVER['REQUEST_URI'], 'order')) {
             if (null === ($app->request->getQuery("access_token"))) {
-                die (
-                    json_encode(
-                        array(
-                            'message' => "Kindly Provide Access Token"
-                        )
+                die(json_encode(
+                    array(
+                        'message' => "Kindly Provide Access Token"
                     )
-                );
+                ));
             }
         }
     }
