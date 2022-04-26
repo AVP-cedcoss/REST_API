@@ -297,5 +297,9 @@ try {
         $_SERVER['REQUEST_URI']
     );
 } catch (\Exception $e) {
-    echo $e->getMessage();
+    return json_encode(
+        array(
+            "Message" => "Invalid ENDPOINT. Kindly Check!!"
+        )
+    );
 }

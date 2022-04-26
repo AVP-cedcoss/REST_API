@@ -33,6 +33,10 @@ define('API_ROOT', "http://192.168.2.64:8080/api");
 
 require_once(APP_PATH . "/vendor/autoload.php");
 
+$profiler = new \Fabfuel\Prophiler\Profiler();
+$toolbar = new \Fabfuel\Prophiler\Toolbar($profiler);
+$toolbar->addDataCollector(new \Fabfuel\Prophiler\DataCollector\Request());
+echo $toolbar->render();
 
 /*************************************Loader Start********************************** */
 // Register an autoloader

@@ -33,6 +33,11 @@ define('APP_PATH', BASE_PATH . '/app');
 
 require_once(APP_PATH . "/vendor/autoload.php");
 
+$profiler = new Fabfuel\Prophiler\Profiler();
+$toolbar = new Fabfuel\Prophiler\Toolbar($profiler);
+$toolbar->addDataCollector(new Fabfuel\Prophiler\DataCollector\Request());
+echo $toolbar->render();
+
 // echo $_SERVER["REQUEST_URI"];
 // die;
 // Register an autoloader
