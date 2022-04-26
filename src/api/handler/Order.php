@@ -56,7 +56,6 @@ class Order extends Injectable
     public function create()
     {
         if ($this->request->isPost() && $this->inputCheck('createOrder')) {
-
             /**
              * Setting Default Order Status
              */
@@ -67,7 +66,7 @@ class Order extends Injectable
                  * Checking Whether the Product Exists in the Database or Not
                  */
                 try {
-                    $this->mongo->api->find(
+                    $product = $this->mongo->api->find(
                         [
                             '_id' => new \MongoDB\BSON\ObjectId(
                                 $this->objects->escaper->sanitize(
@@ -75,7 +74,7 @@ class Order extends Injectable
                                 )
                             )
                         ]
-                    );
+                    )->toArray();
                 } catch (\Exception $e) {
                     return json_encode(
                         array(
@@ -93,20 +92,42 @@ class Order extends Injectable
                     'product_quantity' => $this->objects->escaper->sanitize($this->request->getPost('product_quantity')),
                     'order_status' => $orderStatus,
                     'order_date' => date('Y-m-d'),
-                    'modified_by' => (new Product())->resolveToken(),
+                    'modified_by' => $this->user_id,
                 );
                 if (null !== $this->request->getPost('variant')) {
                     $order['variant'] = $this->objects->escaper->sanitize($this->request->getPost('variant'));
                 }
 
                 $result = $this->mongo->order->insertOne($order);
+                $stock = ($product[0] -> product_stock) - $order['product_quantity'];
+                
+                $this->mongo->api->updateOne(
+                    [
+                        '_id' => new \MongoDB\BSON\ObjectId($order['product_id'])
+                    ],
+                    [
+                        '$set' => [
+                            'product_stock' => $stock
+                        ]
+                    ]
+                );
 
+                /**
+                 * Trigger Event
+                 */
+                $product = array(
+                    '_id' => $this->objects->escaper->sanitize($this->request->getPost('product_id')),
+                    'product_stock' => $stock
+                );
+
+                $this->events->fire('listener:reduceStock', $this, $product);
+                
                 /**
                  * Order Successful Returning Success Message
                  */
                 return json_encode(
                     array(
-                        'Order_ID' => $result->getInsertedId(),
+                        'Order_ID' => strval($result->getInsertedId()),
                         'Order_Status' => $orderStatus,
                         'Message' => 'Order Successfully Added'
                     )

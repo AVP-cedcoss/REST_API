@@ -128,7 +128,7 @@ function productDetail(id) {
   $.ajax({
     method: "POST",
     async: false,
-    url: "/public/admin/product/productDetail",
+    url: "/app/admin/productDetail",
     data: {
       id: id,
     },
@@ -337,7 +337,7 @@ function searchProduct(name) {
   $.ajax({
     method: "POST",
     async: false,
-    url: "/public/admin/product/searchProducts",
+    url: "/app/admin/searchProducts",
     data: {
       name: name,
     },

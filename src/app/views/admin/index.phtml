@@ -1,64 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order List</title>
-</head>
+echo $this->tag->linkTo(
+    [
+        URL_PATH.'/admin/order',
+        "Orders",
+        'class' => 'btn btn-primary m-3',
+    ]
+);
 
-<body>
-    <div class="container-fluid">
-        <div class="container m-2 p-2">
-            <div class="container">
-                <h1 class="text text-primary fw fw-bold">Orders</h1>
-                <?php echo $this->tag->form('');?>
-                <!-- <select name='filterDate' id='filterDate' class='form-control'>
-                    <option>Today</option>
-                    <option>This Week</option>
-                    <option value="first day of this month">This Month</option>
-                    <option>Custom</option>
-                </select>
-                <br>
-                <select name="filterStatus" id="filterStatus" class="form-control">
-                    <option>All</option>
-                    <option>Paid</option>
-                    <option>Processing</option>
-                    <option>Dispatched</option>
-                    <option>Shipped</option>
-                    <option>Refunded</option>
-                </select>
-                <br>
-                <button class="btn btn-primary">Apply Filters</button>
-                <br>
-                <div id="customDateField"></div><br>
-                </form> -->
-            </div>
-            <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th scope="col">Customer Email</th>
-                            <th scope="col">Product Name</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Status</th>
-                        </tr>            
-                    </thead>
-                    <tbody id='tbody'>
-                        <?php
-                        if (isset($content)) {
-                            echo $content;
-                        }
-                        ?>
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal" id="popupview" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            </div>
-        </div>
-    </div>
-</body>
+echo $this->tag->linkTo(
+    [
+        URL_PATH.'/admin/addProduct',
+        "Add Product",
+        'class' => 'btn btn-primary m-3',
+    ]
+);
 
-</html>
+echo $this->tag->linkTo(
+    [
+        URL_PATH.'/admin/listProduct',
+        "View Product",
+        'class' => 'btn btn-primary m-3',
+    ]
+);

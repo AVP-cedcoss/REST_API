@@ -128,6 +128,78 @@ class Product extends Injectable
         return json_encode($data);
     }
 
+    /**
+     * Returns all Products
+     *
+     * @return void
+     */
+    public function getSample($limit = 1, $page = 0)
+    {
+        $result = $this->mongo->api->find(
+            [],
+            [
+                "limit" => intval($limit),
+                "skip" => intval($page),
+            ]
+        );
+        $data = [];
+        foreach ($result as $value) {
+            $count = 0;
+            foreach ($value->variant as $v) {
+                $count++;
+            }
+            array_push(
+                $data,
+                array(
+                    'product_id' => strval($value->_id),
+                    'product_name' => $value->product_name,
+                    'product_category' => $value->product_category,
+                    'product_price' => $value->product_price,
+                    'product_stock' => $value->product_stock,
+                    'product_variation' => $count,
+                )
+            );
+        }
+        return json_encode($data);
+    }
+
+    /**
+     * Returns all Products
+     *
+     * @return void
+     */
+    public function getSampleProductDetail($limit = 1, $page = 0)
+    {
+        $result = $this->mongo->api->findOne(
+            [],
+            [
+                "limit" => intval($limit),
+                "skip" => intval($page),
+            ]
+        );
+        $data=array();
+        $variation=array();
+        
+        foreach ($result->variant as $v) {
+            $temp=[];
+            foreach ($v as $key => $value) {
+                $temp[$key] = $value;
+            }
+            array_push($variation, $temp);
+        }
+
+        $data = array(
+            'product_id' => strval($result->_id),
+            'product_name' => $result->product_name,
+            'product_category' => $result->product_category,
+            'product_price' => $result->product_price,
+            'product_stock' => $result->product_stock,
+            'product_variation' => $variation,
+        );
+
+        return json_encode($data);
+    }
+
     private function inputCheck($check)
     {
         /**
@@ -181,6 +253,14 @@ class Product extends Injectable
                 %{PUT}%
                 # "order_id" = {order id}
                 # "order_status" = {order status}
+
+            -> api/product/getSample
+                %{GET}%
+                # returns Sample Product for reference
+
+            -> api/product/getSampleProductDetail
+            %{GET}%
+            # returns Complete Sample Product for reference
 
         </pre>
         ';

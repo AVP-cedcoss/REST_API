@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Product</title>
+    <!-- <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+</head>
+
+<body>
+    <div class="container">
+        <div class="m-3 p-2 text-primary">
+            <h2>Update Product</h2>
+        </div>
+        <div class="m-3 p-3">
+            <?php echo $this->tag->form(URL_PATH."/admin/updateProduct?id=".$this->request->getQuery('id')); ?>
+            <div id="fieldsDiv">
+                <?php
+                echo "<label for='product_name'>Name</label>" . $this->tag->textField(
+                    [
+                        'product_name',
+                        'class' => 'form-control',
+                        'placeholder' => 'Name',
+                        'value' => $result->product_name,
+                        'required' => 'required'
+                    ]
+                );
+                ?>
+                <?php
+                echo "<label for='product_category'>Category</label>" . $this->tag->textArea(
+                    [
+                        'product_category',
+                        'class' => 'form-control',
+                        'placeholder' => 'Category',
+                        'value' => $result->product_category,
+                        'required' => 'required'
+                    ]
+                );
+                ?>
+                <?php
+                echo "<label for='product_price'>Price</label>" . $this->tag->textField(
+                    [
+                        'product_price',
+                        'class' => 'form-control',
+                        'placeholder' => 'Price',
+                        'value' => $result->product_price,
+                        'required' => 'required'
+                    ]
+                );
+                ?>
+                <?php
+                echo "<label for='product_stock'>Stock</label>" . $this->tag->textField(
+                    [
+                        'product_stock',
+                        'class' => 'form-control',
+                        'placeholder' => 'Stock',
+                        'value' => $result->product_stock,
+                        'required' => 'required'
+                    ]
+                );
+                ?>
+                <?php
+                if (isset($result->meta)) {
+                    $fields = 1000;
+                    foreach ($result->meta as $key => $value) {
+                        echo "
+                            <div class='input-group' id='meta" . $fields . "'>
+                            <input type='text' name='additionalKey[]' class='my-2 form-control' placeholder='Additonal Key' value='".$key."' required>
+                            <input type='text' name='additionalvalue[]' class='m-2 form-control' placeholder='Additional Value' value='".$value."' required>
+                            <a class='deleteEntry' data-id='" . $fields . "'>
+                                <svg xmlns='http://www.w3.org/2000/svg' width='30' height='30' fill='currentColor' class='m-2 bi bi-trash3-fill' viewBox='0 0 16 16'><path d='M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z'/></svg>
+                            </a>
+                        </div>
+                            ";
+                        $fields+=1;
+                    }
+                }
+                ?>
+            </div>
+            <div class="m-3 container">
+                <a class="p-2 btn btn-success rounded text-light" id="addField">Add Meta Field</a>
+                <a class='p-2 btn btn-primary rounded text-light' id='addVariation'>Add Variation</a>
+                <br>
+                <span class="text-danger">ONE Variant at a Time</span>
+            </div>
+
+            <!-- Variation DIV Start -->
+            <div id="variationFieldsDiv">
+                <?php
+                if (isset($result->variant)) {
+                    $variation=500;
+                    foreach ($result->variant as $v) {
+                        $count=0;
+                        echo "
+                        <div class='m-2 p-2 border border-2' id='variationMainDiv".$variation."'>
+                            <a class='p-2 btn btn-primary rounded text-light' data-id='".$variation."', id='addVariationField'>Add Variation Field</a>
+                            <a class='p-2 btn btn-danger rounded text-light' data-id='".$variation."' id='deleteVariationField'>Delete Variation Field</a>
+                        <div id='variation".$variation."'>";
+
+                        foreach ($v as $key => $value) {
+                            if ($key != 'VariantPrice') {
+                                echo "
+                                <div class='input-group' id='varField[".$variation."][".$count."]'>
+                                    <input type='text' name='variationKey[".$variation."][".$count."]' class='my-2 form-control' value='".$key."' placeholder='Key' required>
+                                    <input type='text' name='variationValue[".$variation."][".$count."]' class='m-2 form-control' value='".$value."' placeholder='Variation' >
+                                    <a class='deleteVariationEntryField' data-id='[".$variation."][".$count."]'>
+                                        <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor' class='m-2 bi bi-trash3-fill' viewBox='0 0 16 16'><path d='M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z'/></svg>
+                                    </a>
+                                </div>
+                                ";
+                                $count+=1;
+                            }
+                        }
+
+                        if (isset($v->VariantPrice)) {
+                            echo "
+                            </div>
+                                <label>Variant Price</label>
+                                <input type='text' name='variationPrice".$variation."' class='form-control' placeholder='Price' value='".$v->VariantPrice."' required>
+                            </div>";
+                        } else {
+                            echo "
+                            </div>
+                                <label>Variant Price</label>
+                                <input type='text' name='variationPrice".$variation."' class='form-control' placeholder='Price' value='".$result->product_price."' required>
+                            </div>";
+                        }
+                        $variation+=1;
+                    }
+                }
+                ?>
+
+            </div>
+            <!-- Variation DIV End -->
+
+            <?php
+            echo $this->tag->submitButton(
+                [
+                    'Update Product',
+                    'class' => 'form-control mt-3 btn-primary',
+                    'name' => 'action'
+                ]
+            );
+            ?>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook</title>
+    <!-- <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+</head>
+<body>
+    <div class="container">
+        <div class="m-3 p-2 text-primary">
+            <h2>Add Webhook</h2>
+        </div>
+        <div class="m-3 p-3">
+        <?php echo $this->tag->form(URL_PATH."/user/registerWebhook");?>
+            <div id="fieldsDiv">
+                <?php
+                echo "
+                <label for='webhook'>Category</label>".$this->tag->select(
+                    [
+                        'webhook',
+                        $webhook,
+                        'useEmpty'   => false,
+                        'class' => 'form-control',
+                        'required' => 'required'
+                    ]
+                );
+                ?>
+
+                <?php
+                    echo "<label for='url'>Call Back URL</label>".$this->tag->textField(
+                        [
+                            'url',
+                            'class' => 'form-control',
+                            'placeholder' => 'callback URL',
+                            'required' => 'required'
+                        ]
+                    );
+                ?>
+            </div>
+            <?php
+                echo $this->tag->submitButton(
+                    [
+                        'Add Webhook',
+                        'class' => 'form-control mt-3 btn-primary',
+                        'name' => 'action'
+                    ]
+                );
+            ?>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

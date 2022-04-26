@@ -1,7 +1,7 @@
 <?php
 // print_r(apache_get_modules());
 // echo "<pre>"; print_r($_SERVER); die;
-// $_SERVER["REQUEST_URI"] = str_replace("/app/", "", $_SERVER["REQUEST_URI"]);
+$_SERVER["REQUEST_URI"] = str_replace("app/", "", $_SERVER["REQUEST_URI"]);
 // $_GET["_url"] = "/";
 // $test = str_replace("/app/", "", $_SERVER["REQUEST_URI"]);
 
@@ -18,22 +18,27 @@ use Phalcon\Session\Adapter\Stream;
 use Phalcon\Http\Response\Cookies;
 use Phalcon\Logger;
 use Phalcon\Logger\Adapter\Stream as logStream;
+use Phalcon\Events\Manager as EventsManager;
 
 // $config = new Config([]);
 
 // Define some absolute path constants to aid in locating resources
 define('BASE_PATH', dirname(__DIR__));
-define('URL_PATH', "http://localhost:8080/app");
+define('URL_PATH', "/app");
+define('URL_ROOT', "http://localhost:8080");
 define('APP_PATH', BASE_PATH . '/app');
-// echo APP_PATH;
+// echo BASE_PATH;
 // die;
 
-require_once(APP_PATH."/vendor/autoload.php");
+
+require_once(APP_PATH . "/vendor/autoload.php");
 
 // echo $_SERVER["REQUEST_URI"];
 // die;
 // Register an autoloader
 $loader = new Loader();
+$container = new FactoryDefault();
+$eventsManager = new EventsManager();
 
 $loader->registerDirs(
     [
@@ -44,21 +49,26 @@ $loader->registerDirs(
 
 $loader->registerNamespaces(
     [
-        "App\Helper" => APP_PATH."/helper/"
+        "App\Helper" => APP_PATH . "/helper/"
     ]
 );
 
 $loader->register();
 
-$container = new FactoryDefault();
+/******************************Events Start******************************** */
 
-// $container->set(
-//     'logs',
-//     function () {
-        // $logger  = ;
-//         return $logger;
-//     }
-// );
+//Event
+$eventsManager->attach(
+    'listener',
+    new \App\Helper\listener()
+);
+
+
+/******************************Events End********************************** */
+$container->set(
+    'events',
+    $eventsManager
+);
 
 $container->set(
     'objects',
@@ -66,12 +76,14 @@ $container->set(
         $detail = array(
             'escaper' => new App\Helper\myescaper(),
             'logger' => new Logger(
-                    'messages',
-                    [
-                        "main" => new logStream(APP_PATH . "/logs/main.log"),
-                        "admin" => new logStream(APP_PATH . "/logs/admin.log"),
-                    ]
-                ),
+                'messages',
+                [
+                    "main" => new logStream(APP_PATH . "/logs/main.log"),
+                    "admin" => new logStream(APP_PATH . "/logs/admin.log"),
+                ]
+            ),
+            'webhookHelper' => new \App\Helper\webhook(),
+            //'curl' => new \App\Helper\curl('', []),
         );
         return (object)$detail;
     }
@@ -113,12 +125,20 @@ $container->set(
 $container->set(
     'mongo',
     function () {
-        $mongo =  new \MongoDB\Client('mongodb://mongo', array('username'=>'root',"password"=>'password123'));
+        $mongo =  new \MongoDB\Client('mongodb://mongo', array('username' => 'root', "password" => 'password123'));
         return $mongo->mongodb;
     }
 );
 
-$application = new Application($container); 
+$container->set(
+    'webhookDB',
+    function () {
+        $mongo =  new \MongoDB\Client('mongodb://mongo', array('username' => 'root', "password" => 'password123'));
+        return $mongo->webhook;
+    }
+);
+
+$application = new Application($container);
 
 // $application->setEventsManager($eventsManager);
 
@@ -139,6 +159,6 @@ try {
         // $response->redirect('error');
         // $response->send();
     } elseif (strpos($e->getMessage(), "was not found on handler")) {
-        echo "Method Not Found";
+        echo $e->getMessage()." Method Not Found";
     }
 }

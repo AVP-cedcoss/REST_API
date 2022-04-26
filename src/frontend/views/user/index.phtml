@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User</title>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="container m-2 p-2">
+            <div class="container">
+                <h1 class="text text-primary fw fw-bold"></h1>
+                <?php
+                echo $this->tag->linkTo(
+                    [
+                        URL_PATH . '/order',
+                        'Order',
+                        'class' => 'btn btn-primary mb-2',
+                    ]
+                );
+                ?>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

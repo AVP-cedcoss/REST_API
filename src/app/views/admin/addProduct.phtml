@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <!-- <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+</head>
+<body>
+    <div class="container">
+        <div class="m-3 p-2 text-primary">
+            <h2>Add Product</h2>
+        </div>
+        <div class="m-3 p-3">
+        <?php echo $this->tag->form(URL_PATH."/admin/addProduct");?>
+            <div id="fieldsDiv">
+                <?php
+                    echo "<label for='product_name'>Name</label>".$this->tag->textField(
+                        [
+                            'product_name',
+                            'class' => 'form-control',
+                            'placeholder' => 'Name',
+                            'required' => 'required'
+                        ]
+                    );
+                ?>
+                <?php
+                    echo "<label for='product_category'>Category</label>".$this->tag->textArea(
+                        [
+                            'product_category',
+                            'class' => 'form-control',
+                            'placeholder' => 'Category',
+                            'required' => 'required'
+                        ]
+                    );
+                ?>
+                <?php
+                    echo "<label for='product_price'>Price</label>".$this->tag->textField(
+                        [
+                            'product_price',
+                            'class' => 'form-control',
+                            'placeholder' => 'Price',
+                            'required' => 'required'
+                        ]
+                    );
+                ?>
+                <?php
+                    echo "<label for='product_stock'>Stock</label>".$this->tag->textField(
+                        [
+                            'product_stock',
+                            'class' => 'form-control',
+                            'placeholder' => 'Stock',
+                            'required' => 'required'
+                        ]
+                    );
+                ?>
+            </div>
+            <div class="m-3 container">
+                <a class="p-2 btn btn-success rounded text-light" id="addField">Add Meta Field</a>
+                <a class='p-2 btn btn-primary rounded text-light' id='addVariation'>Add Variation</a>
+                <br>
+                <span class="text-danger">ONE Variant at a Time</span>
+            </div>
+            
+            <!-- Variation DIV Start -->
+            <div id="variationFieldsDiv">
+                
+            </div>
+            <!-- Variation DIV End -->
+
+            <?php
+                echo $this->tag->submitButton(
+                    [
+                        'Add Product',
+                        'class' => 'form-control mt-3 btn-primary',
+                        'name' => 'action'
+                    ]
+                );
+            ?>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

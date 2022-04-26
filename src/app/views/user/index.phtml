@@ -1,0 +1,17 @@
+<?php
+
+echo $this->tag->linkTo(
+    [
+        URL_PATH.'/user/generateToken',
+        "Generate Token",
+        'class' => 'btn btn-primary m-3',
+    ]
+);
+
+echo $this->tag->linkTo(
+    [
+        URL_PATH.'/user/webhook',
+        "WebHook",
+        'class' => 'btn btn-primary m-3',
+    ]
+);

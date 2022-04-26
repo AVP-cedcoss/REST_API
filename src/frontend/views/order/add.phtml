@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Order</title>
+    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="m-3 p-2 text-primary">
+            <h2>Add Order</h2>
+        </div>
+        <div class="m-3 p-3">
+            <?php echo $this->tag->form(URL_PATH."/order/add");?>
+            <?php
+                echo "<label for='customer_name'>Name</label>".$this->tag->textField(
+                    [
+                        'customer_name',
+                        'class' => 'form-control',
+                        'placeholder' => 'Name'
+                    ]
+                );
+            ?>
+            <?php
+                echo "<label for='customer_address'>Address</label>".$this->tag->textArea(
+                    [
+                        'customer_address',
+                        'class' => 'form-control',
+                        'placeholder' => 'Address...'
+                    ]
+                );
+            ?>
+            <?php
+                echo "<label for='zipcode'>Zipcode</label>".$this->tag->textField(
+                    [
+                        'zipcode',
+                        'class' => 'form-control',
+                        'placeholder' => 'Zipcode'
+                    ]
+                );
+            ?>
+            <?php
+            echo "<label for='product'>Products</label>";
+            echo "
+            <label for='product_id'>Category</label>
+            <select name='product_id' id='product_id_order' class='form-control' required>";
+            foreach ($product as $value) {
+                echo "<option value='".$value['product_id']."'>".$value['product_name']."</option>";
+            }
+            echo "</select>";
+            ?>
+            <?php
+                echo "<label for='product_quantity'>Quantity</label>".$this->tag->textField(
+                    [
+                        'product_quantity',
+                        'class' => 'form-control',
+                        'placeholder' => 'Quantity'
+                    ]
+                );
+            ?>
+            <?php
+                echo $this->tag->submitButton(
+                    [
+                        'Add Order',
+                        'class' => 'form-control mt-3 btn-primary',
+                        'name' => 'action'
+                    ]
+                );
+            ?>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

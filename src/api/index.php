@@ -6,29 +6,51 @@ use Phalcon\Loader;
 use Phalcon\Mvc\Micro;
 use Phalcon\Di\FactoryDefault;
 use Phalcon\Mvc\Router;
-use Api\Helper\myescaper;
+use Api\Helper;
 use Handler\Register;
+use Phalcon\Events\Manager as EventsManager;
 
 // Define some absolute path constants to aid in locating resources
-define('BASE_PATH', __DIR__);
-define('APP_PATH', BASE_PATH . '/app');
+define('BASE_PATH', dirname(__DIR__));
+define('URL_PATH', '/api');
+define('APP_PATH', BASE_PATH . '/api');
+// echo BASE_PATH;
+// die;
+
 define('URL_ROOT', 'http://localhost:8080');
 
-require_once(BASE_PATH . "/vendor/autoload.php");
+require_once(APP_PATH . "/vendor/autoload.php");
 
 $container = new FactoryDefault();
 $app = new Micro($container);
+$eventsManager = new EventsManager();
+
 
 $loader = new Loader();
 
 $loader->registerNamespaces(
     [
-        'Handler' => BASE_PATH . '/handler',
-        'Helper' => BASE_PATH . '/helper',
+        'Handler' => APP_PATH . '/handler',
+        'Api\Helper' => APP_PATH . '/helper',
     ]
 );
 
 $loader->register();
+
+/******************************Events Start******************************** */
+
+//Event
+$eventsManager->attach(
+    'listener',
+    new Api\Helper\listener()
+);
+
+$container->set(
+    'events',
+    $eventsManager
+);
+
+/******************************Events End********************************** */
 
 $register = new Handler\Register();
 $product = new Handler\Product();
@@ -40,6 +62,14 @@ $container->set(
     function () {
         $mongo =  new \MongoDB\Client('mongodb://mongo', array('username' => 'root', "password" => 'password123'));
         return $mongo->mongodb;
+    }
+);
+
+$container->set(
+    'webhookDB',
+    function () {
+        $mongo =  new \MongoDB\Client('mongodb://mongo', array('username' => 'root', "password" => 'password123'));
+        return $mongo->webhook;
     }
 );
 
@@ -84,7 +114,8 @@ $container->set(
     'objects',
     function () {
         $obj = array(
-            'escaper' => new myescaper()
+            'escaper' => new Helper\myescaper(),
+            
         );
         return (object)$obj;
     }
@@ -154,10 +185,26 @@ $container->set(
 /* -----------------------Product Start------------------*/
 
 $app->get(
-    '/api',
+    URL_PATH,
     [
         $product,
         'help'
+    ]
+);
+
+$app->get(
+    URL_PATH.'/product/getSample',
+    [
+        $product,
+        'getSample'
+    ]
+);
+
+$app->get(
+    URL_PATH.'/product/getSampleProductDetail',
+    [
+        $product,
+        'getSampleProductDetail'
     ]
 );
 
@@ -177,7 +224,7 @@ $app->before(
 );
 
 $app->get(
-    '/api/products/get',
+    URL_PATH.'/products/get',
     [
         $product,
         'all'
@@ -185,7 +232,7 @@ $app->get(
 );
 
 $app->get(
-    '/api/products/get/{limit}/{page}',
+    URL_PATH.'/products/get/{limit}/{page}',
     [
         $product,
         'all'
@@ -193,7 +240,7 @@ $app->get(
 );
 
 $app->post(
-    '/api/get/product',
+    URL_PATH.'/get/product',
     [
         $product,
         'search'
@@ -201,7 +248,7 @@ $app->post(
 );
 
 $app->get(
-    '/api/products/search/{keyword}',
+    URL_PATH.'/products/search/{keyword}',
     [
         $product,
         'findByKeyword'
@@ -226,7 +273,7 @@ $app->before(
 );
 
 $app->post(
-    '/api/order/create',
+    URL_PATH.'/order/create',
     [
         $order,
         'create'
@@ -234,7 +281,7 @@ $app->post(
 );
 
 $app->put(
-    '/api/order/update',
+    URL_PATH.'/order/update',
     [
         $order,
         'update'
@@ -245,7 +292,10 @@ $app->put(
 
 
 /**----------------------------------------------------GET REQUEST END---------------------------------------------- */
-
-$app->handle(
-    $_SERVER['REQUEST_URI']
-);
+try {
+    $app->handle(
+        $_SERVER['REQUEST_URI']
+    );
+} catch (\Exception $e) {
+    echo $e->getMessage();
+}
